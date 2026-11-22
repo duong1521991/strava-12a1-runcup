@@ -1,0 +1,110 @@
+<!doctype html><html lang="vi"><head><title>Strave 12A1 Run Cup</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: running-track lanes. Header + timeline, podium, one lane per runner scaled by km, run log. */
+:root{--bg:#f4f3ef;--surface:#fff;--fg:#1b1d22;--muted:#6a6f7a;--line:#dedcd5;--track:#d8512f;--track-soft:#f6ddd5;--gold:#c99a1a;--silver:#8c949f;--bronze:#a8683a;--lane:#ece9e2;
+--display:'Barlow Condensed','Arial Narrow',Impact,sans-serif;--body:'Inter',system-ui,-apple-system,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14161a;--surface:#1d2026;--fg:#eceae4;--muted:#9a9fa9;--line:#2c3038;--track:#f0693f;--track-soft:#3a2219;--gold:#e5b53a;--silver:#aab2bd;--bronze:#cc8650;--lane:#262a31;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14161a;--surface:#1d2026;--fg:#eceae4;--muted:#9a9fa9;--line:#2c3038;--track:#f0693f;--track-soft:#3a2219;--gold:#e5b53a;--silver:#aab2bd;--bronze:#cc8650;--lane:#262a31;color-scheme:dark}
+*{box-sizing:border-box}
+html{color-scheme:light dark}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);padding-block:0 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,.num{font-family:var(--display);text-transform:uppercase;letter-spacing:.02em;margin:0;text-wrap:balance}
+header{padding-top:36px;display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--track);font-weight:600}
+h1{font-size:clamp(46px,11vw,92px);line-height:.92;font-weight:800}
+h1 span{color:var(--track)}
+.sub{color:var(--muted);max-width:52ch;margin:0}
+.timeline{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.tl-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.tl-top b{color:var(--fg);font-weight:600}
+.bar{position:relative;height:10px;border-radius:5px;background:var(--lane)}
+.bar i{position:absolute;inset:0 auto 0 0;border-radius:5px;background:var(--track)}
+.bar u{position:absolute;top:-4px;width:18px;height:18px;border-radius:50%;background:var(--track);border:3px solid var(--surface);transform:translateX(-50%);box-sizing:border-box}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.stat{display:flex;flex-direction:column;gap:2px;padding:4px 0}
+.stat .num{font-size:40px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+h2{font-size:28px;font-weight:700}
+.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:10px;align-items:end}
+.pod{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px 8px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;min-width:0}
+.pod.p1{padding-top:22px;padding-bottom:18px;border-color:var(--gold)}
+.pod .nm{font-weight:600;font-size:14px;max-width:100%;overflow-wrap:anywhere}
+.pod .km{font-family:var(--display);font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.pod .km small{font-size:14px;color:var(--muted);margin-left:2px}
+.medal{font-family:var(--display);font-weight:800;font-size:13px;letter-spacing:.12em;color:var(--surface);padding:1px 8px;border-radius:3px}
+.p1 .medal{background:var(--gold)}.p2 .medal{background:var(--silver)}.p3 .medal{background:var(--bronze)}
+.av{border-radius:50%;object-fit:cover;background:var(--lane);display:grid;place-items:center;font-family:var(--display);font-weight:700;color:var(--muted);overflow:hidden;flex:none}
+.pod .av{width:64px;height:64px;font-size:26px}.p1 .av{width:84px;height:84px;font-size:32px;box-shadow:0 0 0 3px var(--gold)}
+.p2 .av{box-shadow:0 0 0 3px var(--silver)}.p3 .av{box-shadow:0 0 0 3px var(--bronze)}
+.lanes{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:6px;background:var(--surface);overflow:hidden}
+.lane{display:grid;grid-template-columns:34px 44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;border-top:1px solid var(--line)}
+.lane:first-child{border-top:0}
+.rk{font-family:var(--display);font-weight:800;font-size:26px;color:var(--muted);text-align:center}
+.lane:nth-child(1) .rk{color:var(--gold)}.lane:nth-child(2) .rk{color:var(--silver)}.lane:nth-child(3) .rk{color:var(--bronze)}
+.lane .av{width:44px;height:44px;font-size:18px}
+.who{display:flex;flex-direction:column;gap:6px;min-width:0}
+.who b{font-weight:600;overflow-wrap:anywhere}
+.track{height:8px;border-radius:4px;background:var(--lane);position:relative}
+.track i{position:absolute;inset:0 auto 0 0;background:var(--track);border-radius:4px;min-width:0}
+.fig{text-align:right;font-variant-numeric:tabular-nums;display:flex;flex-direction:column;line-height:1.2}
+.fig .num{font-size:26px;font-weight:700}
+.fig span{font-size:12px;color:var(--muted)}
+.lane.idle .fig .num{color:var(--muted)}
+.log{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:480px;font-variant-numeric:tabular-nums}
+th,td{padding:10px 14px;text-align:left;border-top:1px solid var(--line);font-size:14px}
+th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-top:0;font-weight:600}
+td.r,th.r{text-align:right}
+tr.out td{color:var(--muted)}
+.tag{font-size:11px;background:var(--lane);color:var(--muted);padding:1px 7px;border-radius:3px;margin-left:6px;white-space:nowrap}
+.prize{background:var(--track-soft);border:1px solid var(--track);border-radius:6px;padding:18px 16px;display:flex;flex-direction:column;gap:12px}.prize h2{color:var(--track)}.prize ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.prize li{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;font-weight:600}.prize li span{font-size:12px;color:var(--muted);font-weight:400;text-transform:uppercase;letter-spacing:.08em}
+.note{color:var(--muted);font-size:13px;margin:0}
+@media (max-width:480px){.lane{grid-template-columns:26px 38px minmax(0,1fr) auto;gap:8px;padding:10px}.lane .av{width:38px;height:38px}.pod .av{width:52px;height:52px}.p1 .av{width:68px;height:68px}.pod .km{font-size:22px}}
+</style></head><body>
+<div class="wrap">
+<header>
+ <div class="eyebrow">Giải chạy nội bộ · Strava club 12A1</div>
+ <h1>Run Cup<br><span>17–30.11</span></h1>
+ <p class="sub">Hai tuần, ai chạy nhiều km nhất lên đỉnh bảng. Chỉ tính hoạt động Run từ 17/11 đến hết 30/11.</p>
+ <div class="timeline">
+  <div class="tl-top"><span>Bắt đầu <b>17/11</b></span><span id="dayinfo"></span><span>Kết thúc <b>30/11</b></span></div>
+  <div class="bar"><i id="pfill"></i><u id="pdot"></u></div>
+ </div>
+</header>
+<section class="stats" id="stats"></section>
+<section class="prize"><h2>Giải nhất</h2><ul><li><span>Phần 1</span>1 buổi chơi net</li><li><span>Phần 2</span>Tiền mì trứng</li><li><span>Phần 3</span>1 chai Tài Lộc</li></ul></section>
+<section><h2 style="margin-bottom:12px">Bục vinh danh</h2><div class="podium" id="podium"></div></section>
+<section><h2 style="margin-bottom:12px">Bảng xếp hạng</h2><div class="lanes" id="lanes"></div></section>
+<section><h2 style="margin-bottom:12px">Nhật ký chạy</h2><div class="log"><table><thead><tr><th>Ngày</th><th>Thành viên</th><th class="r">Km</th><th class="r">Pace</th><th class="r">Thời gian</th></tr></thead><tbody id="rows"></tbody></table></div>
+<p class="note" style="margin-top:10px" id="foot"></p></section>
+</div>
+<script>
+var START=new Date(2026,10,17),END=new Date(2026,10,30,23,59,59);
+function dt(s){var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+function fd(s){var p=s.split('-');return p[2]+'/'+p[1]}
+function fmt(s){var m=Math.floor(s/60),x=Math.round(s%60);return m+'p '+(x<10?'0':'')+x+'s'}
+function pace(km,s){var p=s/km,m=Math.floor(p/60),x=Math.round(p%60);return m+':'+(x<10?'0':'')+x+'/km'}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+Promise.all([fetch('data.json?'+Date.now()).then(function(r){return r.json()}),fetch('avatars.json').then(function(r){return r.json()})]).then(function(x){render(x[0],x[1])}).catch(function(e){document.getElementById('foot').textContent='Không tải được dữ liệu: '+e});
+function render(D,AV){
+var M=D.members,A=D.activities,TODAY=new Date();
+function av(id,n){var m=M.filter(function(k){return k.id===id})[0]||{};var src=AV[id]||m.avatar;return src?'<img class="av" alt="" referrerpolicy="no-referrer" src="'+esc(src)+'">':'<span class="av">'+esc(n.trim().charAt(0).toUpperCase())+'</span>'}
+var inW=A.filter(function(a){var d=dt(a.d);return d>=START&&d<=END});
+var R=M.map(function(m){var l=inW.filter(function(a){return a.m===m.id});return{id:m.id,n:m.n,km:l.reduce(function(t,a){return t+a.km},0),runs:l.length,s:l.reduce(function(t,a){return t+a.s},0)}});
+R.sort(function(a,b){return b.km-a.km||b.runs-a.runs});
+var tot=R.reduce(function(t,r){return t+r.km},0),active=R.filter(function(r){return r.runs}).length;
+var span=14,day=Math.max(1,Math.min(span,Math.floor((TODAY-START)/864e5)+1)),pct=Math.min(100,day/span*100);
+document.getElementById('dayinfo').innerHTML=TODAY>END?'<b>Đã kết thúc</b>':'Ngày <b>'+day+'/'+span+'</b> · còn '+(span-day)+' ngày';
+document.getElementById('pfill').style.width=pct+'%';document.getElementById('pdot').style.left=pct+'%';
+document.getElementById('stats').innerHTML=[[tot.toFixed(1),'km cả nhóm'],[inW.length,'buổi chạy'],[active+'/'+M.length,'người đã chạy'],[R[0].km?R[0].km.toFixed(2):'0','km dẫn đầu']].map(function(x){return'<div class="stat"><div class="num">'+x[0]+'</div><span>'+x[1]+'</span></div>'}).join('');
+var order=[1,0,2],cls=['p1','p2','p3'],lab=['HẠNG 1','HẠNG 2','HẠNG 3'];
+document.getElementById('podium').innerHTML=order.filter(function(i){return R[i]}).map(function(i){var r=R[i];if(!r.km)return'<div class="pod '+cls[i]+'"><span class="medal">'+lab[i]+'</span><span class="av">?</span><div class="nm">Đang chờ</div><div class="km">—</div></div>';return'<div class="pod '+cls[i]+'"><span class="medal">'+lab[i]+'</span>'+av(r.id,r.n)+'<div class="nm">'+esc(r.n)+'</div><div class="km">'+r.km.toFixed(2)+'<small>km</small></div></div>'}).join('');
+var mx=Math.max(R[0].km,1);
+document.getElementById('lanes').innerHTML=R.map(function(r,i){return'<div class="lane'+(r.runs?'':' idle')+'"><div class="rk">'+(i+1)+'</div>'+av(r.id,r.n)+'<div class="who"><b>'+esc(r.n)+'</b><div class="track"><i style="width:'+(r.km/mx*100)+'%"></i></div></div><div class="fig"><div class="num">'+r.km.toFixed(2)+' <span>km</span></div><span>'+(r.runs?r.runs+' buổi · '+pace(r.km,r.s):'chưa có buổi chạy')+'</span></div></div>'}).join('');
+var nameOf={};M.forEach(function(m){nameOf[m.id]=m.n});
+document.getElementById('rows').innerHTML=inW.slice().sort(function(a,b){return dt(b.d)-dt(a.d)||b.id-a.id}).map(function(a){return'<tr><td>'+fd(a.d)+'</td><td>'+esc(nameOf[a.m]||a.m)+'</td><td class="r">'+a.km.toFixed(2)+'</td><td class="r">'+pace(a.km,a.s)+'</td><td class="r">'+fmt(a.s)+'</td></tr>'}).join('');
+document.getElementById('foot').textContent='Cập nhật từ feed club Strava lúc '+new Date(D.updated).toLocaleString('vi-VN')+'. Chỉ tính hoạt động Run từ 17/11 đến 30/11.';
+}
+</script></body></html>
