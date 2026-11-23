@@ -4,6 +4,7 @@ import html, json, os, re, sys, urllib.request
 from datetime import datetime, timedelta, timezone
 
 CLUB = "604553"
+TYPES = {"Run", "TrailRun", "VirtualRun", "Walk", "Hike"}  # chạy bộ và đi bộ đều được tính
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data.json")
 VN = timezone(timedelta(hours=7))
@@ -63,7 +64,7 @@ if "entries" not in feed:
 new = 0
 for e in feed["entries"]:
     a = e.get("activity")
-    if not a or a.get("type") != "Run":
+    if not a or a.get("type") not in TYPES:
         continue
     st = {s["key"]: s["value"] for s in a["stats"]}
     if "km" not in st.get("stat_one", ""):
@@ -76,7 +77,7 @@ for e in feed["entries"]:
         continue
     ath = a["athlete"]
     acts[aid] = {"id": aid, "m": ath["athleteId"], "d": d.isoformat(),
-                 "km": float(strip(st["stat_one"]).split()[0]), "s": seconds(st["stat_three"])}
+                 "km": float(strip(st["stat_one"]).split()[0]), "s": seconds(st["stat_three"]), "t": a["type"]}
     members.setdefault(ath["athleteId"], {"id": ath["athleteId"], "n": ath["athleteName"], "avatar": ath.get("avatarUrl")})
     new += 1
 

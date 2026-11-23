@@ -69,7 +69,7 @@ tr.out td{color:var(--muted)}
 <div class="hero">
  <div class="eyebrow">Giải chạy nội bộ · Strava club 12A1</div>
  <h1>Run Cup<br><span>17–30.11</span></h1>
- <p class="sub">Hai tuần, ai chạy nhiều km nhất lên đỉnh bảng. Chỉ tính hoạt động Run từ 17/11 đến hết 30/11.</p>
+ <p class="sub">Hai tuần, ai chạy nhiều km nhất lên đỉnh bảng. Chạy bộ hay đi bộ đều được tính, từ 17/11 đến hết 30/11.</p>
 </div>
  <div class="timeline">
   <div class="tl-top"><span>Bắt đầu <b>17/11</b></span><span id="dayinfo"></span><span>Kết thúc <b>30/11</b></span></div>
@@ -107,7 +107,7 @@ document.getElementById('podium').innerHTML=order.filter(function(i){return R[i]
 var mx=Math.max(R[0].km,1);
 document.getElementById('lanes').innerHTML=R.map(function(r,i){return'<div class="lane'+(r.runs?'':' idle')+'"><div class="rk">'+(i+1)+'</div>'+av(r.id,r.n)+'<div class="who"><b>'+esc(r.n)+'</b><div class="track"><i style="width:'+(r.km/mx*100)+'%"></i></div></div><div class="fig"><div class="num">'+r.km.toFixed(2)+' <span>km</span></div><span>'+(r.runs?r.runs+' buổi · '+pace(r.km,r.s):'chưa có buổi chạy')+'</span></div></div>'}).join('');
 var nameOf={};M.forEach(function(m){nameOf[m.id]=m.n});
-document.getElementById('rows').innerHTML=inW.slice().sort(function(a,b){return dt(b.d)-dt(a.d)||b.id-a.id}).map(function(a){return'<tr><td>'+fd(a.d)+'</td><td>'+esc(nameOf[a.m]||a.m)+'</td><td class="r">'+a.km.toFixed(2)+'</td><td class="r">'+pace(a.km,a.s)+'</td><td class="r">'+fmt(a.s)+'</td></tr>'}).join('');
-document.getElementById('foot').textContent='Cập nhật từ feed club Strava lúc '+new Date(D.updated).toLocaleString('vi-VN')+'. Chỉ tính hoạt động Run từ 17/11 đến 30/11.';
+document.getElementById('rows').innerHTML=inW.slice().sort(function(a,b){return dt(b.d)-dt(a.d)||b.id-a.id}).map(function(a){return'<tr><td>'+fd(a.d)+'</td><td>'+esc(nameOf[a.m]||a.m)+(/Walk|Hike/.test(a.t||'')?'<span class="tag">đi bộ</span>':'')+'</td><td class="r">'+a.km.toFixed(2)+'</td><td class="r">'+pace(a.km,a.s)+'</td><td class="r">'+fmt(a.s)+'</td></tr>'}).join('');
+document.getElementById('foot').textContent='Cập nhật từ feed club Strava lúc '+new Date(D.updated).toLocaleString('vi-VN')+'. Tính cả chạy bộ và đi bộ, từ 17/11 đến 30/11.';
 }
 </script></body></html>
