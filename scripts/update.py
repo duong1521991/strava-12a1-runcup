@@ -61,24 +61,55 @@ except Exception as e:
 if "entries" not in feed:
     sys.exit("Phản hồi không có entries (cookie hết hạn?)")
 
-new = 0
-for e in feed["entries"]:
+def to_activity(e):
     a = e.get("activity")
     if not a or a.get("type") not in TYPES:
-        continue
+        return None
     st = {s["key"]: s["value"] for s in a["stats"]}
-    if "km" not in st.get("stat_one", ""):
-        continue
+    by = {strip(st[k]): st[k.replace("_subtitle", "")] for k in st if k.endswith("_subtitle")}
+    dist = by.get("Distance")
+    if not dist or "km" not in dist:
+        return None
     d = parse_date(a["timeAndLocation"]["displayDateAtTime"])
-    aid = str(a["id"])
-    if aid in acts:           # giữ ngày đã chốt từ lần trước
-        continue
     if d is None:
-        continue
+        return None
     ath = a["athlete"]
-    acts[aid] = {"id": aid, "m": ath["athleteId"], "d": d.isoformat(),
-                 "km": float(strip(st["stat_one"]).split()[0]), "s": seconds(st["stat_three"]), "t": a["type"]}
-    members.setdefault(ath["athleteId"], {"id": ath["athleteId"], "n": ath["athleteName"], "avatar": ath.get("avatarUrl")})
+    return {"id": str(a["id"]), "m": ath["athleteId"], "d": d.isoformat(),
+            "km": float(strip(dist).split()[0].replace(",", "")), "s": seconds(by.get("Time", "")), "t": a["type"],
+            "_n": ath["athleteName"], "_a": ath.get("avatarUrl")}
+
+
+def profile_entries(aid):
+    """Trang hồ sơ có sẵn các hoạt động gần đây (gồm cả đi bộ, mà feed club không hiện)."""
+    try:
+        page = get(f"https://www.strava.com/athletes/{aid}", "text/html")
+    except Exception as ex:
+        print(f"Bỏ qua {aid}: {ex}")
+        return []
+    for m in re.finditer(r"data-react-props='([^']*)'", page):
+        s = html.unescape(m.group(1))
+        if '"preFetchedEntries"' in s:
+            try:
+                return json.loads(s)["appContext"]["preFetchedEntries"]
+            except Exception:
+                return []
+    return []
+
+
+entries = list(feed["entries"])
+for m in list(members.values()):
+    entries += profile_entries(m["id"])
+
+new = 0
+for e in entries:
+    r = to_activity(e)
+    if not r:
+        continue
+    name, avatar = r.pop("_n"), r.pop("_a")
+    if r["id"] in acts:       # giữ ngày đã chốt từ lần trước
+        continue
+    acts[r["id"]] = r
+    members.setdefault(r["m"], {"id": r["m"], "n": name, "avatar": avatar})
     new += 1
 
 if old["activities"] and sorted(old["activities"], key=lambda x: x["id"]) == sorted(acts.values(), key=lambda x: x["id"]) and len(old["members"]) == len(members):
