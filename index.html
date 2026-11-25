@@ -58,6 +58,14 @@ th,td{padding:10px 14px;text-align:left;border-top:1px solid var(--line);font-si
 th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-top:0;font-weight:600}
 td.r,th.r{text-align:right}
 tr.out td{color:var(--muted)}
+.dq{border:1px dashed var(--muted);border-radius:6px;background:var(--surface);padding:16px;display:flex;gap:16px;align-items:center;position:relative;overflow:hidden}
+.dq .av{width:64px;height:64px;font-size:26px;filter:grayscale(1);opacity:.75}
+.dq-body{display:flex;flex-direction:column;gap:4px;min-width:0}
+.dq-body b{font-size:16px;overflow-wrap:anywhere}
+.dq-body p{margin:0;color:var(--muted);font-size:14px}
+.stamp{margin-left:auto;flex:none;font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:.06em;text-transform:uppercase;color:var(--track);border:3px solid var(--track);border-radius:6px;padding:2px 10px;transform:rotate(-8deg);opacity:.9;text-align:center;line-height:1.1}
+tr.dqrow td{text-decoration:line-through;color:var(--muted)}
+@media (max-width:480px){.dq{flex-wrap:wrap}.stamp{margin-left:0}}
 .tag{font-size:11px;background:var(--lane);color:var(--muted);padding:1px 7px;border-radius:3px;margin-left:6px;white-space:nowrap}
 .prize{background:var(--track-soft);border:1px solid var(--track);border-radius:6px;padding:18px 16px;display:flex;flex-direction:column;gap:12px}.prize h2{color:var(--track)}.prize ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.prize li{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;font-weight:600}.prize li span{font-size:12px;color:var(--muted);font-weight:400;text-transform:uppercase;letter-spacing:.08em}
 .hero{border-radius:6px;padding:min(56vw,300px) 20px 22px;display:flex;flex-direction:column;gap:14px;background:linear-gradient(180deg,rgba(10,10,12,.05) 0%,rgba(10,10,12,.55) 50%,rgba(10,10,12,.88) 100%),url(cover.jpg) center 20%/cover #222;color:#fff}.hero .sub{color:#e4e2dc}.hero .eyebrow{color:#ff9a78}.hero h1 span{color:#ff9a78}
@@ -80,6 +88,7 @@ tr.out td{color:var(--muted)}
 <section class="prize"><h2>Giải nhất</h2><ul><li><span>Phần 1</span>1 buổi chơi net</li><li><span>Phần 2</span>Tiền mì trứng</li><li><span>Phần 3</span>1 chai Tài Lộc</li></ul></section>
 <section><h2 style="margin-bottom:12px">Bục vinh danh</h2><div class="podium" id="podium"></div></section>
 <section><h2 style="margin-bottom:12px">Bảng xếp hạng</h2><div class="lanes" id="lanes"></div></section>
+<section id="dqsec" hidden><h2 style="margin-bottom:12px">Phòng truyền thống</h2><div id="dq"></div></section>
 <section><h2 style="margin-bottom:12px">Nhật ký chạy</h2><div class="log"><table><thead><tr><th>Ngày</th><th>Thành viên</th><th class="r">Km</th><th class="r">Pace</th><th class="r">Thời gian</th></tr></thead><tbody id="rows"></tbody></table></div>
 <p class="note" style="margin-top:10px" id="foot"></p></section>
 </div>
@@ -90,11 +99,15 @@ function fd(s){var p=s.split('-');return p[2]+'/'+p[1]}
 function fmt(s){var m=Math.floor(s/60),x=Math.round(s%60);return m+'p '+(x<10?'0':'')+x+'s'}
 function pace(km,s){var p=s/km,m=Math.floor(p/60),x=Math.round(p%60);return m+':'+(x<10?'0':'')+x+'/km'}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-Promise.all([fetch('data.json?'+Date.now()).then(function(r){return r.json()}),fetch('avatars.json').then(function(r){return r.json()})]).then(function(x){render(x[0],x[1])}).catch(function(e){document.getElementById('foot').textContent='Không tải được dữ liệu: '+e});
+Promise.all([fetch('data.json?'+Date.now()).then(function(r){return r.json()}),fetch('avatars.json').then(function(r){return r.json()})]).then(function(x){render(x[0],x[1])}).catch(function(e){var dqHtml=ALL.filter(function(k){return DQ[k.id]}).map(function(k){var km=inAll.filter(function(a){return a.m===k.id}).reduce(function(s,a){return s+a.km},0);return'<div class="dq">'+av(k.id,k.n)+'<div class="dq-body"><b>'+esc(k.n)+'</b><p>'+esc(DQ[k.id])+'</p><p>Thành tích bị hủy: '+km.toFixed(2)+' km</p></div><div class="stamp">Bị loại<br>vì gian lận</div></div>'}).join('');
+if(dqHtml){document.getElementById('dq').innerHTML=dqHtml;document.getElementById('dqsec').hidden=false}
+document.getElementById('foot').textContent='Không tải được dữ liệu: '+e});
 function render(D,AV){
-var M=D.members,A=D.activities,TODAY=new Date();
-function av(id,n){var m=M.filter(function(k){return k.id===id})[0]||{};var src=AV[id]||m.avatar;return src?'<img class="av" alt="" referrerpolicy="no-referrer" src="'+esc(src)+'">':'<span class="av">'+esc(n.trim().charAt(0).toUpperCase())+'</span>'}
-var inW=A.filter(function(a){var d=dt(a.d);return d>=START&&d<=END});
+var ALL=D.members,A=D.activities,TODAY=new Date();
+var DQ={'33785926':'Bật chế độ chạy bộ trên xe đạp, tự thú ngay trong ngày. Được giữ lại làm kỷ niệm.'};
+var M=ALL.filter(function(k){return!DQ[k.id]});
+function av(id,n){var m=ALL.filter(function(k){return k.id===id})[0]||{};var src=AV[id]||m.avatar;return src?'<img class="av" alt="" referrerpolicy="no-referrer" src="'+esc(src)+'">':'<span class="av">'+esc(n.trim().charAt(0).toUpperCase())+'</span>'}
+var inAll=A.filter(function(a){var d=dt(a.d);return d>=START&&d<=END});var inW=inAll.filter(function(a){return!DQ[a.m]});
 var R=M.map(function(m){var l=inW.filter(function(a){return a.m===m.id});return{id:m.id,n:m.n,km:l.reduce(function(t,a){return t+a.km},0),runs:l.length,s:l.reduce(function(t,a){return t+a.s},0)}});
 R.sort(function(a,b){return b.km-a.km||b.runs-a.runs});
 var tot=R.reduce(function(t,r){return t+r.km},0),active=R.filter(function(r){return r.runs}).length;
@@ -106,8 +119,8 @@ var order=[1,0,2],cls=['p1','p2','p3'],lab=['HẠNG 1','HẠNG 2','HẠNG 3'];
 document.getElementById('podium').innerHTML=order.filter(function(i){return R[i]}).map(function(i){var r=R[i];if(!r.km)return'<div class="pod '+cls[i]+'"><span class="medal">'+lab[i]+'</span><span class="av">?</span><div class="nm">Đang chờ</div><div class="km">—</div></div>';return'<div class="pod '+cls[i]+'"><span class="medal">'+lab[i]+'</span>'+av(r.id,r.n)+'<div class="nm">'+esc(r.n)+'</div><div class="km">'+r.km.toFixed(2)+'<small>km</small></div></div>'}).join('');
 var mx=Math.max(R[0].km,1);
 document.getElementById('lanes').innerHTML=R.map(function(r,i){return'<div class="lane'+(r.runs?'':' idle')+'"><div class="rk">'+(i+1)+'</div>'+av(r.id,r.n)+'<div class="who"><b>'+esc(r.n)+'</b><div class="track"><i style="width:'+(r.km/mx*100)+'%"></i></div></div><div class="fig"><div class="num">'+r.km.toFixed(2)+' <span>km</span></div><span>'+(r.runs?r.runs+' buổi · '+pace(r.km,r.s):'chưa có buổi chạy')+'</span></div></div>'}).join('');
-var nameOf={};M.forEach(function(m){nameOf[m.id]=m.n});
-document.getElementById('rows').innerHTML=inW.slice().sort(function(a,b){return dt(b.d)-dt(a.d)||b.id-a.id}).map(function(a){return'<tr><td>'+fd(a.d)+'</td><td>'+esc(nameOf[a.m]||a.m)+(/Walk|Hike/.test(a.t||'')?'<span class="tag">đi bộ</span>':'')+'</td><td class="r">'+a.km.toFixed(2)+'</td><td class="r">'+pace(a.km,a.s)+'</td><td class="r">'+fmt(a.s)+'</td></tr>'}).join('');
+var nameOf={};ALL.forEach(function(m){nameOf[m.id]=m.n});
+document.getElementById('rows').innerHTML=inAll.slice().sort(function(a,b){return dt(b.d)-dt(a.d)||b.id-a.id}).map(function(a){return'<tr'+(DQ[a.m]?' class="dqrow"':'')+'><td>'+fd(a.d)+'</td><td>'+esc(nameOf[a.m]||a.m)+(DQ[a.m]?'<span class="tag">bị loại</span>':'')+(/Walk|Hike/.test(a.t||'')?'<span class="tag">đi bộ</span>':'')+'</td><td class="r">'+a.km.toFixed(2)+'</td><td class="r">'+pace(a.km,a.s)+'</td><td class="r">'+fmt(a.s)+'</td></tr>'}).join('');
 document.getElementById('foot').textContent='Cập nhật từ feed club Strava lúc '+new Date(D.updated).toLocaleString('vi-VN')+'. Tính cả chạy bộ và đi bộ, từ 17/11 đến 30/11.';
 }
 </script></body></html>
