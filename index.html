@@ -99,9 +99,7 @@ function fd(s){var p=s.split('-');return p[2]+'/'+p[1]}
 function fmt(s){var m=Math.floor(s/60),x=Math.round(s%60);return m+'p '+(x<10?'0':'')+x+'s'}
 function pace(km,s){var p=s/km,m=Math.floor(p/60),x=Math.round(p%60);return m+':'+(x<10?'0':'')+x+'/km'}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-Promise.all([fetch('data.json?'+Date.now()).then(function(r){return r.json()}),fetch('avatars.json').then(function(r){return r.json()})]).then(function(x){render(x[0],x[1])}).catch(function(e){var dqHtml=ALL.filter(function(k){return DQ[k.id]}).map(function(k){var km=inAll.filter(function(a){return a.m===k.id}).reduce(function(s,a){return s+a.km},0);return'<div class="dq">'+av(k.id,k.n)+'<div class="dq-body"><b>'+esc(k.n)+'</b><p>'+esc(DQ[k.id])+'</p><p>Thành tích bị hủy: '+km.toFixed(2)+' km</p></div><div class="stamp">Bị loại<br>vì gian lận</div></div>'}).join('');
-if(dqHtml){document.getElementById('dq').innerHTML=dqHtml;document.getElementById('dqsec').hidden=false}
-document.getElementById('foot').textContent='Không tải được dữ liệu: '+e});
+Promise.all([fetch('data.json?'+Date.now()).then(function(r){return r.json()}),fetch('avatars.json').then(function(r){return r.json()})]).then(function(x){render(x[0],x[1])}).catch(function(e){document.getElementById('foot').textContent='Không tải được dữ liệu: '+e});
 function render(D,AV){
 var ALL=D.members,A=D.activities,TODAY=new Date();
 var DQ={'33785926':'Bật chế độ chạy bộ trên xe đạp, tự thú ngay trong ngày. Được giữ lại làm kỷ niệm.'};
@@ -121,6 +119,8 @@ var mx=Math.max(R[0].km,1);
 document.getElementById('lanes').innerHTML=R.map(function(r,i){return'<div class="lane'+(r.runs?'':' idle')+'"><div class="rk">'+(i+1)+'</div>'+av(r.id,r.n)+'<div class="who"><b>'+esc(r.n)+'</b><div class="track"><i style="width:'+(r.km/mx*100)+'%"></i></div></div><div class="fig"><div class="num">'+r.km.toFixed(2)+' <span>km</span></div><span>'+(r.runs?r.runs+' buổi · '+pace(r.km,r.s):'chưa có buổi chạy')+'</span></div></div>'}).join('');
 var nameOf={};ALL.forEach(function(m){nameOf[m.id]=m.n});
 document.getElementById('rows').innerHTML=inAll.slice().sort(function(a,b){return dt(b.d)-dt(a.d)||b.id-a.id}).map(function(a){return'<tr'+(DQ[a.m]?' class="dqrow"':'')+'><td>'+fd(a.d)+'</td><td>'+esc(nameOf[a.m]||a.m)+(DQ[a.m]?'<span class="tag">bị loại</span>':'')+(/Walk|Hike/.test(a.t||'')?'<span class="tag">đi bộ</span>':'')+'</td><td class="r">'+a.km.toFixed(2)+'</td><td class="r">'+pace(a.km,a.s)+'</td><td class="r">'+fmt(a.s)+'</td></tr>'}).join('');
+var dqHtml=ALL.filter(function(k){return DQ[k.id]}).map(function(k){var km=inAll.filter(function(a){return a.m===k.id}).reduce(function(s,a){return s+a.km},0);return'<div class="dq">'+av(k.id,k.n)+'<div class="dq-body"><b>'+esc(k.n)+'</b><p>'+esc(DQ[k.id])+'</p><p>Thành tích bị hủy: '+km.toFixed(2)+' km</p></div><div class="stamp">Bị loại<br>vì gian lận</div></div>'}).join('');
+if(dqHtml){document.getElementById('dq').innerHTML=dqHtml;document.getElementById('dqsec').hidden=false}
 document.getElementById('foot').textContent='Cập nhật từ feed club Strava lúc '+new Date(D.updated).toLocaleString('vi-VN')+'. Tính cả chạy bộ và đi bộ, từ 17/11 đến 30/11.';
 }
 </script></body></html>

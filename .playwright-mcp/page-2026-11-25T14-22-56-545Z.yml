@@ -1,0 +1,35 @@
+- generic [ref=f1e2]:
+  - banner [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - generic [ref=f1e5]: Giải chạy nội bộ · Strava club 12A1
+      - heading "Run Cup 17–30.11" [level=1] [ref=f1e6]: Run Cup17–30.11
+      - paragraph [ref=f1e7]: Hai tuần, ai chạy nhiều km nhất lên đỉnh bảng. Chạy bộ hay đi bộ đều được tính, từ 17/11 đến hết 30/11.
+    - generic [ref=f1e9]:
+      - generic [ref=f1e10]: Bắt đầu 17/11
+      - generic [ref=f1e11]: Kết thúc 30/11
+  - generic [ref=f1e14]:
+    - heading "Giải nhất" [level=2] [ref=f1e15]
+    - list [ref=f1e16]:
+      - listitem [ref=f1e17]:
+        - generic [ref=f1e18]: Phần 1
+        - text: 1 buổi chơi net
+      - listitem [ref=f1e19]:
+        - generic [ref=f1e20]: Phần 2
+        - text: Tiền mì trứng
+      - listitem [ref=f1e21]:
+        - generic [ref=f1e22]: Phần 3
+        - text: 1 chai Tài Lộc
+  - heading "Bục vinh danh" [level=2] [ref=f1e24]
+  - heading "Bảng xếp hạng" [level=2] [ref=f1e26]
+  - generic [ref=f1e28]:
+    - heading "Nhật ký chạy" [level=2] [ref=f1e29]
+    - table [ref=f1e31]:
+      - rowgroup [ref=f1e32]:
+        - row [ref=f1e33]:
+          - columnheader "Ngày" [ref=f1e34]
+          - columnheader "Thành viên" [ref=f1e35]
+          - columnheader "Km" [ref=f1e36]
+          - columnheader "Pace" [ref=f1e37]
+          - columnheader "Thời gian" [ref=f1e38]
+      - rowgroup
+    - paragraph
